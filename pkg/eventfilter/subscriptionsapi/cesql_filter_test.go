@@ -69,6 +69,14 @@ func TestCESQLFilter(t *testing.T) {
 			expression: fmt.Sprintf("missingattribute = %s", "missinsvalue"),
 			want:       eventfilter.FailFilter,
 		},
+		"Match spatial extent": {
+			expression: fmt.Sprintf("INTERSECTS('%s', '%s')", "POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))", "POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))"),
+			want:       eventfilter.PassFilter,
+		},
+		"Fail spatial extent match": {
+			expression: fmt.Sprintf("INTERSECTS('%s', '%s')", "POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))", "POLYGON((10 10, 10 20, 20 20, 20 10, 10 10))"),
+			want:       eventfilter.FailFilter,
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

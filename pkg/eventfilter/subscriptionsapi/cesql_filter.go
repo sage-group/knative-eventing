@@ -26,12 +26,20 @@ import (
 	"go.uber.org/zap"
 	"knative.dev/pkg/logging"
 
+	ceruntime "github.com/cloudevents/sdk-go/sql/v2/runtime"
 	"knative.dev/eventing/pkg/eventfilter"
 )
 
 type ceSQLFilter struct {
 	rawExpression    string
 	parsedExpression cesql.Expression
+}
+
+func init() {
+	err := ceruntime.AddFunction(Intersects)
+	if err != nil {
+		panic(fmt.Sprintf("failed to add Intersects function: %v", err))
+	}
 }
 
 // NewCESQLFilter returns an event filter which passes if the provided CESQL expression
