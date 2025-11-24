@@ -21,16 +21,23 @@ import (
 
 	cesql "github.com/cloudevents/sdk-go/sql/v2"
 	cefn "github.com/cloudevents/sdk-go/sql/v2/function"
-	"github.com/go-spatial/geom"
-	"github.com/go-spatial/geom/encoding/wkt"
+	ceruntime "github.com/cloudevents/sdk-go/sql/v2/runtime"
+	sfgeom "github.com/peterstace/simplefeatures/geom"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 )
 
+func init() {
+	err := ceruntime.AddFunction(Intersects)
+	if err != nil {
+		panic(fmt.Sprintf("failed to add Intersects function: %v", err))
+	}
+}
+
 // Intersects creates a user-defined function that checks if two geometries intersect spatially.
 // Both arguments should be WKT (Well-Known Text) formatted geometry strings.
 // Examples: "POINT(1 1)", "POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))"
-// Note: This implementation uses bounding box intersection for performance.
+// This implementation performs true geometric intersection using the simplefeatures library.
 var Intersects cesql.Function = cefn.NewFunction(
 	"INTERSECTS",
 	[]cesql.Type{cesql.StringType, cesql.StringType},
@@ -41,30 +48,19 @@ var Intersects cesql.Function = cefn.NewFunction(
 		geom2Str := i[1].(string)
 
 		// Parse the first geometry from WKT
-		geom1, err := wkt.DecodeString(geom1Str)
+		geom1, err := sfgeom.UnmarshalWKT(geom1Str)
 		if err != nil {
 			return false, fmt.Errorf("failed to parse first geometry: %w", err)
 		}
 
 		// Parse the second geometry from WKT
-		geom2, err := wkt.DecodeString(geom2Str)
+		geom2, err := sfgeom.UnmarshalWKT(geom2Str)
 		if err != nil {
 			return false, fmt.Errorf("failed to parse second geometry: %w", err)
 		}
 
-		// Get bounding boxes for intersection check
-		extent1, err := geom.NewExtentFromGeometry(geom1)
-		if err != nil {
-			return false, fmt.Errorf("failed to get extent for first geometry: %w", err)
-		}
-
-		extent2, err := geom.NewExtentFromGeometry(geom2)
-		if err != nil {
-			return false, fmt.Errorf("failed to get extent for second geometry: %w", err)
-		}
-
-		// Check if bounding boxes intersect
-		_, intersects := extent1.Intersect(extent2)
+		// Check if geometries intersect using true geometric intersection
+		intersects := sfgeom.Intersects(geom1, geom2)
 		return intersects, nil
 	},
 )
