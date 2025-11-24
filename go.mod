@@ -14,7 +14,6 @@ require (
 	github.com/eclipse/paho.golang v0.12.0
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-jose/go-jose/v3 v3.0.4
-	github.com/go-spatial/geom v0.1.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
@@ -25,6 +24,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/openzipkin/zipkin-go v0.4.3
 	github.com/pelletier/go-toml/v2 v2.0.5
+	github.com/peterstace/simplefeatures v0.56.0
 	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
 	github.com/pkg/errors v0.9.1
 	github.com/rickb777/date v1.13.0
